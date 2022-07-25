@@ -40,7 +40,7 @@ data class CredentialIssuanceSession (
   val id: String,
   val issuanceRequest: CredentialIssuanceRequest,
   @JsonIgnore val nonce: String,
-  @JsonIgnore  val user: UserInfo,
+  @JsonIgnore val user: UserInfo,
   @JsonIgnore var tokens: OIDCTokens? = null,
   @JsonIgnore var lastTokenUpdate: Instant? = null,
   @JsonIgnore var tokenNonce: String? = null,

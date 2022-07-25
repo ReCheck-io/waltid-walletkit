@@ -41,6 +41,9 @@ dependencies {
 
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.2")
 
+    //Database
+    implementation("mysql:mysql-connector-java:8.0.11")
+
     // Testing
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.12.4")
