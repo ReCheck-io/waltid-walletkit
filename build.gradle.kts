@@ -44,6 +44,10 @@ dependencies {
     //Database
     implementation("mysql:mysql-connector-java:8.0.11")
 
+    // cryptography
+    implementation("commons-codec:commons-codec:1.15")
+
+
     // Testing
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.12.4")

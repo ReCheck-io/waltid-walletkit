@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 class UserInfo(
     val id: String
 ) {
+
     var email: String? = null
     var password: String? = null
     var token: String? = null
@@ -19,4 +20,10 @@ class UserInfo(
             id.lowercase().startsWith("did:") -> did = id
         }
     }
+
+    constructor(id:String, password:String, did:String) : this(id) {
+        this.password = password
+        this.did = did
+    }
+
 }

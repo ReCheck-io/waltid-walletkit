@@ -1,5 +1,8 @@
 package id.walt.webwallet.backend.auth
 
+import id.walt.database.encrypt
+import id.walt.database.insertRow
+import id.walt.database.queryUser
 import id.walt.model.DidMethod
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
@@ -22,6 +25,16 @@ object AuthController {
                     .json<UserInfo>("200"),
                     AuthController::login), UserRole.UNAUTHORIZED)
             }
+            path("signup") {
+                post(documented(document().operation {
+                    it.summary("Signup")
+                        .operationId("signup")
+                        .addTagsItem("Authentication")
+                }
+                    .body<UserInfo> { it.description("Signup info") }
+                    .json<UserInfo>("200"),
+                    AuthController::signup), UserRole.UNAUTHORIZED)
+            }
             path("userInfo") {
                 get(
                     documented(document().operation {
@@ -34,22 +47,35 @@ object AuthController {
             }
         }
 
+
+    fun signup(ctx: Context) {
+        val userInfo = ctx.bodyAsClass(UserInfo::class.java)
+        val id = if (userInfo.id.length>0) userInfo.id
+        else userInfo.email
+        val encryptedPass = encrypt(userInfo.password!!)
+
+        insertRow(id!!, encryptedPass, userInfo.did ?: "null")
+    }
+
     fun login(ctx: Context) {
         val userInfo = ctx.bodyAsClass(UserInfo::class.java)
-        println("----------")
-        println(userInfo.id)
-        println(userInfo.password)
-        println(userInfo.email)
-        println("----------")
-        // TODO: verify login credentials!!
-        ContextManager.runWith(WalletContextManager.getUserContext(userInfo)) {
-            if(DidService.listDids().isEmpty()) {
-                DidService.create(DidMethod.key)
+        val id = if (userInfo.id.length>0) userInfo.id
+        else userInfo.email
+        val user = queryUser(id!!) ?: throw  IllegalArgumentException("The user has not been registered")
+        val checkPass = encrypt(userInfo.password!!) == user.password
+        if(checkPass){
+            ContextManager.runWith(WalletContextManager.getUserContext(userInfo)) {
+                if (DidService.listDids().isEmpty()) {
+                    DidService.create(DidMethod.key)
+                }
+//            TODO: Update the DID in the database
             }
+            ctx.json(UserInfo(userInfo.id).apply {
+                token = JWTService.toJWT(userInfo)
+            })
+        }else {
+            throw IllegalArgumentException("The user has not been registered")
         }
-        ctx.json(UserInfo(userInfo.id).apply {
-            token = JWTService.toJWT(userInfo)
-        })
 
     }
 
