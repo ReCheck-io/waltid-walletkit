@@ -20,6 +20,7 @@ object UserContextLoader : CacheLoader<String, Context>() {
 
   override fun load(key: String): UserContext {
     //TODO: get user context preferences from user database
+    //TODO: make it so this function gets the data from the database
     return UserContext(key, HKVKeyStoreService(), HKVVcStoreService(), FileSystemHKVStore(FilesystemStoreConfig("${WALTID_DATA_ROOT}/data/${key}")))
   }
 }

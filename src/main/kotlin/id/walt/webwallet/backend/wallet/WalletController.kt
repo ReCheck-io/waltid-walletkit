@@ -115,7 +115,7 @@ object WalletController {
                 // called by wallet UI
                 get("continuePresentation", documented(
                     document().operation {
-                        it.summary("Continue presentation requested by verifer")
+                        it.summary("Continue presentation requested by verifier")
                             .operationId("continuePresentation")
                             .addTagsItem("siop")
                     }

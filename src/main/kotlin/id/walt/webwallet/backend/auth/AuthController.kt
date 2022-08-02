@@ -59,9 +59,14 @@ object AuthController {
 
     fun login(ctx: Context) {
         val userInfo = ctx.bodyAsClass(UserInfo::class.java)
+
+        // make the db check with the email
         val id = if (userInfo.id.length>0) userInfo.id
         else userInfo.email
+
+        // check if the user is signed with their email in the db
         val user = queryUser(id!!) ?: throw  IllegalArgumentException("The user has not been registered")
+
         val checkPass = encrypt(userInfo.password!!) == user.password
         if(checkPass){
             ContextManager.runWith(WalletContextManager.getUserContext(userInfo)) {

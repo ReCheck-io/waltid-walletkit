@@ -11,6 +11,11 @@
       "id": "onboarding@walt.id",
       "url": "http://localhost:8080/onboarding-api/oidc",
       "description": "walt.id On-Boarding service"
+    },
+    "recheck.io": {
+      "id": "recheck.io",
+      "url": "http://localhost:8080/issuer-api/oidc",
+      "description": "ReCheck Issuer Portal"
     }
   }
 }

@@ -68,6 +68,7 @@ fun queryUser(username: String): UserInfo {
         )
         val sql = "SELECT * FROM wallet.users WHERE username=\"$username\""
         val rs = connection.createStatement().executeQuery(sql)
+        // Takes the first element that meets the requirement, which should be the only, as username should be unique
         rs.first()
 
         println(
