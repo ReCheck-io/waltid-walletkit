@@ -73,6 +73,7 @@ abstract class BaseApiTest : AnnotationSpec() {
         server?.stop()
     }
 
+    //TODO: Sign up check before the login check
     fun authenticate(): UserInfo = runBlocking {
         val userInfo = client.post("$url/api/auth/login") {
             contentType(ContentType.Application.Json)
@@ -91,7 +92,8 @@ abstract class BaseApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
             setBody(mapOf(
                 "id" to did,
-                "did" to did
+                "did" to did,
+                "password" to "1234"
             ))
         }.body<UserInfo>()
         return@runBlocking userInfo
