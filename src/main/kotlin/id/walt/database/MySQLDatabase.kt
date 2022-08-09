@@ -57,6 +57,28 @@ fun queryUsers() {
     }
 }
 
+fun updateDid(username: String, did:String){
+    var connection: Connection? = null
+    try {
+        // below two lines are used for connectivity.
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        connection = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
+            "daka", "daka"
+        )
+        val sql = "UPDATE wallet.users" +
+                " SET did = \"$did\"" +
+                " WHERE username = \"$username\";"
+        println(sql)
+        with(connection) {
+            createStatement().execute(sql)
+        }
+    } catch (exception: Exception) {
+        println(exception)
+    }
+}
+
+
 fun queryUser(username: String): UserInfo {
     var connection: Connection? = null
     try {

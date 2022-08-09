@@ -3,6 +3,7 @@ package id.walt.webwallet.backend.auth
 import id.walt.database.encrypt
 import id.walt.database.insertRow
 import id.walt.database.queryUser
+import id.walt.database.updateDid
 import id.walt.model.DidMethod
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
@@ -68,12 +69,14 @@ object AuthController {
         val user = queryUser(id!!) ?: throw  IllegalArgumentException("The user has not been registered")
 
         val checkPass = encrypt(userInfo.password!!) == user.password
+        println()
         if(checkPass){
             ContextManager.runWith(WalletContextManager.getUserContext(userInfo)) {
                 if (DidService.listDids().isEmpty()) {
                     DidService.create(DidMethod.key)
                 }
-//            TODO: Update the DID in the database
+//            TODO: Update the DID in the database in the correct manner
+                updateDid(user.id,DidService.listDids().get(0))
             }
             ctx.json(UserInfo(userInfo.id).apply {
                 token = JWTService.toJWT(userInfo)
