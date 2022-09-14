@@ -55,7 +55,7 @@ object AuthController {
         else userInfo.email
         val encryptedPass = encrypt(userInfo.password!!)
 
-        insertRow(id!!, encryptedPass, userInfo.did ?: "null")
+        insertRow(id!!, encryptedPass, userInfo.did ?: "null", 0);
     }
 
     fun login(ctx: Context) {

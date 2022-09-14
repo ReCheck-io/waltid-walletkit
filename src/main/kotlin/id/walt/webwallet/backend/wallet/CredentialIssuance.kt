@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.google.common.cache.CacheBuilder
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
 import id.walt.custodian.Custodian
+import id.walt.database.insertIssuance
 import id.walt.model.dif.CredentialManifest
 import id.walt.model.oidc.*
 import id.walt.services.context.ContextManager
@@ -75,13 +76,15 @@ object CredentialIssuanceManager {
 
   fun initIssuance(issuanceRequest: CredentialIssuanceRequest, user: UserInfo): URI? {
     val issuer = WalletConfig.config.issuers[issuanceRequest.issuerId] ?: return null
-
     val session = CredentialIssuanceSession(
       id = UUID.randomUUID().toString(),
       issuanceRequest = issuanceRequest,
       nonce = UUID.randomUUID().toString(),
       user = user)
 
+    println("Init issuance ${user.id}")
+    println("Init issuance ${session.id}")
+    insertIssuance(session.id,user.id,"empty")
     val claimedCredentials = issuanceRequest.schemaIds.map {
       CredentialClaim(type = it, manifest_id = null, vp_token = generateRequiredVpTokenFor(it, issuanceRequest.did, issuer))
     }

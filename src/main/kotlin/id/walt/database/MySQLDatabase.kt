@@ -15,7 +15,7 @@ object GFG {
 
 fun encrypt(originalString: String): String = DigestUtils.sha256Hex(originalString);
 
-fun insertRow(username: String, password: String, did: String) {
+fun insertRow(username: String, password: String, did: String, issuerID: Int) {
     var connection: Connection? = null
     try {
         // below two lines are used for connectivity.
@@ -24,7 +24,7 @@ fun insertRow(username: String, password: String, did: String) {
             "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
             "daka", "daka"
         )
-        val sql = "INSERT INTO wallet.users VALUES (\"$username\", \"$password\", \"$did\")"
+        val sql = "INSERT INTO wallet.users VALUES (\"$username\", \"$password\", \"$did\", \"$issuerID\" )"
         println(sql)
         with(connection) {
             createStatement().execute(sql)
@@ -104,5 +104,65 @@ fun queryUser(username: String): UserInfo {
     } catch (exception: Exception) {
         println(exception)
         throw exception
+    }
+}
+
+fun insertSession(sessionID: String, issuerID: String, did: String, issuanceID: String,schemaIDs: String, walletRedirectUri: String ) {
+    var connection: Connection? = null
+    try {
+        // below two lines are used for connectivity.
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        connection = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
+            "daka", "daka"
+        )
+        val sql = "INSERT INTO wallet.sessions VALUES (\"$sessionID\", \"$did\", \"$issuerID\", \"$issuanceID\", \"$schemaIDs\", \"$walletRedirectUri\")"
+        println(sql)
+        with(connection) {
+            createStatement().execute(sql)
+        }
+    } catch (exception: Exception) {
+        println(exception)
+    }
+}
+
+fun insertIssuance(issuanceID: String, id: String, sessionID: String) {
+    var connection: Connection? = null
+    try {
+        // below two lines are used for connectivity.
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        connection = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
+            "daka", "daka"
+        )
+        println("do tuk ?")
+        val sql = "INSERT INTO wallet.issuances VALUES (\"$issuanceID\", \"$id\", \"$sessionID\")"
+        println(sql)
+        with(connection) {
+            createStatement().execute(sql)
+        }
+    } catch (exception: Exception) {
+        println(exception)
+    }
+}
+
+fun updateIssuanceSessionIDWithSessionID(issuanceID: String, sessionID: String){
+    var connection: Connection? = null
+    try {
+        // below two lines are used for connectivity.
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        connection = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
+            "daka", "daka"
+        )
+        val sql = "UPDATE wallet.issuances" +
+                " SET sessionID = \"$sessionID\"" +
+                " WHERE issuanceID = \"$issuanceID\";"
+        println(sql)
+        with(connection) {
+            createStatement().execute(sql)
+        }
+    } catch (exception: Exception) {
+        println(exception)
     }
 }

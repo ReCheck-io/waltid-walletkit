@@ -1,6 +1,8 @@
 package id.walt.webwallet.backend.wallet
 
 import id.walt.crypto.KeyAlgorithm
+import id.walt.database.insertIssuance
+import id.walt.database.insertSession
 import id.walt.model.DidMethod
 import id.walt.model.oidc.SIOPv2Request
 import id.walt.model.oidc.klaxon
@@ -15,6 +17,7 @@ import id.walt.webwallet.backend.auth.JWTService
 import id.walt.webwallet.backend.auth.UserRole
 import id.walt.webwallet.backend.config.WalletConfig
 import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.core.util.RouteOverviewUtil.metaInfo
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.HttpCode
@@ -350,19 +353,52 @@ object WalletController {
     }
 
     fun finalizeIssuance(ctx: Context) {
+
+//        save the issuance ID where the session ID match
+//        save
         val state = ctx.queryParam("state")
         val code = ctx.queryParam("code")
-        if (state.isNullOrEmpty() || code.isNullOrEmpty()) {
-            ctx.status(HttpCode.BAD_REQUEST).result("No state or authorization code given")
-            return
-        }
-        val issuance = CredentialIssuanceManager.finalizeIssuance(state, code)
-        if (issuance?.credentials != null) {
-            ctx.status(HttpCode.FOUND)
-                .header("Location", "${WalletConfig.config.walletUiUrl}/ReceiveCredential/?sessionId=${issuance.id}")
-        } else {
-            ctx.status(HttpCode.FOUND).header("Location", "${WalletConfig.config.walletUiUrl}/IssuanceError/")
-        }
+
+//        if (state.isNullOrEmpty() || code.isNullOrEmpty()) {
+//            ctx.status(HttpCode.BAD_REQUEST).result("No state or authorization code given")
+//            return
+//        }
+//        val issuance = CredentialIssuanceManager.finalizeIssuance(state, code)
+        println(state)
+//        println(issuance?.user?.token)
+//        println(issuance?.user?.id)
+//        println(issuance?.issuanceRequest?.did)
+//        println(issuance)
+        println(code)
+
+//        insertIssuance(state,issuance!!.user.did!!,code)
+
+//        val state = ctx.queryParam("state")
+//        println("the issuace id is $state")
+//        val code = ctx.queryParam("code")
+//        println("the code is $code")
+//        if (state.isNullOrEmpty() || code.isNullOrEmpty()) {
+//            ctx.status(HttpCode.BAD_REQUEST).result("No state or authorization code given")
+//            return
+//        }
+//        val issuance = CredentialIssuanceManager.finalizeIssuance(state, code)
+//        println("the issuance is ${issuance!!.id}" +
+//                "------------" +
+//                " ${issuance.issuanceRequest}" +
+//                "---------------" +
+//                " ${issuance.user.id}")
+//        if (issuance?.credentials != null) {
+//            ctx.status(HttpCode.FOUND)
+//                .header("Location", "${WalletConfig.config.walletUiUrl}/ReceiveCredential/?sessionId=${issuance.id}")
+//        } else {
+//            ctx.status(HttpCode.FOUND).header("Location", "${WalletConfig.config.walletUiUrl}/IssuanceError/")
+//        }
+        ctx.status(HttpCode.FOUND)
+                .header("Location", "${WalletConfig.config.walletUiUrl}")
+    }
+
+    fun approveIssuance(){
+
     }
 
     fun getIssuanceSessionInfo(ctx: Context) {

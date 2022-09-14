@@ -9,6 +9,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import com.nimbusds.openid.connect.sdk.SubjectType
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
+import id.walt.database.updateIssuanceSessionIDWithSessionID
 import id.walt.model.dif.CredentialManifest
 import id.walt.model.dif.OutputDescriptor
 import id.walt.model.oidc.CredentialResponse
@@ -241,18 +242,28 @@ object IssuerController {
 
   fun par(ctx: Context) {
     val req = AuthorizationRequest.parse(ServletUtils.createHTTPRequest(ctx.req))
+//    TODO: save the claims in the db ?
     val claims = OIDCUtils.getVCClaims(req)
+    println("These claims $claims")
     if(claims == null || claims.credentials == null) {
       ctx.status(HttpCode.BAD_REQUEST).json(PushedAuthorizationErrorResponse(ErrorObject("400", "No credential claims given", 400)))
       return
     }
     val session = IssuerManager.initializeIssuanceSession(claims.credentials!!, req)
+    println("This session ${session.id} with this session did")
+    println("This req ${req.clientID}")
+    println("This issuanceID ${req.state.toString()}")
+
+    updateIssuanceSessionIDWithSessionID(req.state.toString(),session.id)
+
     ctx.status(HttpCode.CREATED).json(PushedAuthorizationSuccessResponse(URI("urn:ietf:params:oauth:request_uri:${session.id}"), IssuerManager.EXPIRATION_TIME.seconds).toJSONObject())
   }
 
   fun fulfillPAR(ctx: Context) {
     val parURI = ctx.queryParam("request_uri")!!
+    println("parURI $parURI")
     val sessionID = parURI.substringAfterLast("urn:ietf:params:oauth:request_uri:")
+    println("sessionID ${sessionID}")
     val session = IssuerManager.getIssuanceSession(sessionID)
     if(session != null) {
       ctx.status(HttpCode.FOUND).header("Location", "${IssuerConfig.config.issuerUiUrl}/?sessionId=${session.id}")
@@ -272,7 +283,7 @@ object IssuerController {
       ctx.status(HttpCode.NOT_FOUND).json(TokenErrorResponse(OAuth2Error.INVALID_REQUEST).toJSONObject())
       return
     }
-
+//    TODO: Check if the token is needed for reconstruction of the issuance
     ctx.json(OIDCTokenResponse(OIDCTokens(JWTService.toJWT(UserInfo(session.id)), BearerAccessToken(session.id), RefreshToken()), mapOf(
       "expires_in" to IssuerManager.EXPIRATION_TIME.seconds,
       "c_nonce" to session.nonce

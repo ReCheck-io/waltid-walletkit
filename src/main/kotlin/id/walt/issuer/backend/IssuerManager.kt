@@ -36,6 +36,7 @@ fun isSchema(typeOrSchema: String): Boolean {
 
 object IssuerManager {
 
+  //TODO: to have this as a registration form via API
   val issuerContext = UserContext(
     contextId = "Issuer",
     hkvStore = FileSystemHKVStore(FilesystemStoreConfig("$WALTID_DATA_ROOT/data/issuer")),
