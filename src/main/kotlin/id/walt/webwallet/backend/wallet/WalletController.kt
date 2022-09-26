@@ -1,8 +1,11 @@
 package id.walt.webwallet.backend.wallet
 
 import id.walt.crypto.KeyAlgorithm
+import id.walt.database.IssuanceData
+import id.walt.database.deleteIssuanceRequest
 import id.walt.database.insertIssuance
 import id.walt.database.insertSession
+import id.walt.issuer.backend.IssuerController
 import id.walt.model.DidMethod
 import id.walt.model.oidc.SIOPv2Request
 import id.walt.model.oidc.klaxon
@@ -14,6 +17,7 @@ import id.walt.services.essif.EssifClient
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.key.KeyService
 import id.walt.webwallet.backend.auth.JWTService
+import id.walt.webwallet.backend.auth.UserInfo
 import id.walt.webwallet.backend.auth.UserRole
 import id.walt.webwallet.backend.config.WalletConfig
 import io.javalin.apibuilder.ApiBuilder.*
@@ -211,6 +215,26 @@ object WalletController {
                         .result<String>("302"),
                     WalletController::finalizeIssuance
                 ), UserRole.UNAUTHORIZED)
+                post("requestedIssuablesForApprovement", documented(
+                    document().operation {
+                        it.summary("requestedIssuablesForApprovement")
+                            .addTagsItem("Issuer")
+                            .operationId("requestedIssuablesForApprovement")
+                    }
+                        .formParamBody<String> { }
+                        .jsonArray<String>("200"),
+                    WalletController::requestedIssuablesForApprovement
+                ))
+                post("requestedIssuableRejected", documented(
+                    document().operation {
+                        it.summary("requestedIssuableRejected")
+                            .addTagsItem("Issuer")
+                            .operationId("requestedIssuableRejected")
+                    }
+                        .formParamBody<String> { }
+                        .jsonArray<String>("200"),
+                    WalletController::requestedIssuableRejected
+                ))
                 // called by wallet UI
                 get("issuanceSessionInfo", documented(
                     document().operation {
@@ -224,6 +248,32 @@ object WalletController {
             }
         }
 
+
+    fun requestedIssuablesForApprovement(ctx:Context){
+        val request = ctx.bodyAsClass(IssuanceData::class.java)
+
+        val state = request.issuanceID
+        val code = request.sessionID
+
+        if (state.isNullOrEmpty() || code.isNullOrEmpty()) {
+            ctx.status(HttpCode.BAD_REQUEST).result("No state or authorization code given")
+            return
+        }
+        val issuance = CredentialIssuanceManager.finalizeIssuance(state, code)
+        deleteIssuanceRequest(state)
+    }
+    fun requestedIssuableRejected(ctx:Context){
+        val request = ctx.bodyAsClass(IssuanceData::class.java)
+
+        val state = request.issuanceID
+        val code = request.sessionID
+
+        if (state.isNullOrEmpty() || code.isNullOrEmpty()) {
+            ctx.status(HttpCode.BAD_REQUEST).result("No state or authorization code given")
+            return
+        }
+        deleteIssuanceRequest(state)
+    }
     fun listDids(ctx: Context) {
         ctx.json(DidService.listDids())
     }
@@ -345,6 +395,7 @@ object WalletController {
     fun initIssuance(ctx: Context) {
         val issuance = ctx.bodyAsClass<CredentialIssuanceRequest>()
         val location = CredentialIssuanceManager.initIssuance(issuance, JWTService.getUserInfo(ctx)!!)
+        println("this location $location")
         if (location != null) {
             ctx.result(location.toString())
         } else {
