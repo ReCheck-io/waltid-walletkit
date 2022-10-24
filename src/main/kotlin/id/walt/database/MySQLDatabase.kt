@@ -128,7 +128,7 @@ fun insertSession(sessionID: String, issuerID: String, did: String, issuanceID: 
     }
 }
 
-fun insertIssuance(issuanceID: String, id: String, sessionID: String) {
+fun insertIssuance(issuanceID: String, id: String, sessionID: String, vc:String) {
     var connection: Connection? = null
     try {
         // below two lines are used for connectivity.
@@ -138,7 +138,7 @@ fun insertIssuance(issuanceID: String, id: String, sessionID: String) {
             "daka", "daka"
         )
         println("do tuk ?")
-        val sql = "INSERT INTO wallet.issuances VALUES (\"$issuanceID\", \"$id\", \"$sessionID\")"
+        val sql = "INSERT INTO wallet.issuances VALUES (\"$issuanceID\", \"$id\", \"$sessionID\", \"$vc\")"
         println(sql)
         with(connection) {
             createStatement().execute(sql)
@@ -185,9 +185,10 @@ fun getAllIssuancesReadyForApprovement(): List<IssuanceData>? {
             println(
                 "Issuance: ${rs.getString("issuanceID")}\t" +
                         "Id: $${rs.getString("id")}\t" +
-                        "sessionID: ${rs.getString("sessionID")}"
+                        "sessionID: ${rs.getString("sessionID")}" +
+                        "sessionID: ${rs.getString("vc")}"
             )
-            val issuanceRequest = IssuanceData(rs.getString("issuanceID"), rs.getString("id"), rs.getString("sessionID"))
+            val issuanceRequest = IssuanceData(rs.getString("issuanceID"), rs.getString("id"), rs.getString("sessionID"), rs.getString("vc"))
             println(issuanceRequest)
             listOfIssuances?.add(issuanceRequest)
             println(listOfIssuances)
@@ -230,38 +231,14 @@ fun insertVC(sessionID: String, vc: String) {
             "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
             "daka", "daka"
         )
-        println("do tuk ?")
-        val sql = "INSERT INTO wallet.vc VALUES ( \"$sessionID\", \"$vc\")"
+        val sql = "UPDATE wallet.issuances" +
+                " SET vc = \'$vc\'" +
+                " WHERE sessionID = \"$sessionID\";"
         println(sql)
         with(connection) {
             createStatement().execute(sql)
         }
     } catch (exception: Exception) {
         println(exception)
-    }
-}
-
-fun queryVC(sessionID: String){
-    var connection: Connection? = null
-    try {
-        // below two lines are used for connectivity.
-        Class.forName("com.mysql.cj.jdbc.Driver")
-        connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
-        )
-        val sql = "SELECT * FROM wallet.vc WHERE sessionID=\"$sessionID\""
-        val rs = connection.createStatement().executeQuery(sql)
-        // Takes the first element that meets the requirement, which should be the only, as username should be unique
-        rs.first()
-
-        println(
-            "sessionID: ${rs.getString("sessionID")}\t" +
-                    "object: ${rs.getString("object")}\t"
-        )
-//    TODO: return issuable credential
-    } catch (exception: Exception) {
-        println(exception)
-        throw exception
     }
 }

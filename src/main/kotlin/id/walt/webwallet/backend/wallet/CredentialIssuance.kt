@@ -84,7 +84,7 @@ object CredentialIssuanceManager {
 
     println("Init issuance ${user.id}")
     println("Init issuance ${session.id}")
-    insertIssuance(session.id,user.id,"empty")
+    insertIssuance(session.id,user.id,"empty", "empty")
     val claimedCredentials = issuanceRequest.schemaIds.map {
       CredentialClaim(type = it, manifest_id = null, vp_token = generateRequiredVpTokenFor(it, issuanceRequest.did, issuer))
     }

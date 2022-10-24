@@ -208,12 +208,13 @@ object IssuerController {
             ctx.status(HttpCode.BAD_REQUEST).result("Unknown wallet or session ID given")
             return
         }
-
+        println(ctx.body())
         val selectedIssuables = ctx.bodyAsClass<Issuables>()
         println("this selected issuables ${selectedIssuables.credentials[0].credentialData}")
-
+        val select:String = ctx.body()
+        println(select)
 //    push them into the db
-        insertVC(session?.id!!, selectedIssuables.credentials[0].credentialData.toString())
+        insertVC(session?.id!!, ctx.body())
         if (selectedIssuables.credentials.isEmpty()) {
             ctx.status(HttpCode.BAD_REQUEST).result("No issuable credential selected")
             return;
