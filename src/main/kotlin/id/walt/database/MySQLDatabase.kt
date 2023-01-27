@@ -7,6 +7,9 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
 
+val connectionURL = "jdbc:mysql://localhost:3306/wallet?useSSL=FALSE&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+val user = "daka"
+val pass = "Admin@123"
 object GFG {
     @JvmStatic
     fun main(arg: Array<String>) {
@@ -21,10 +24,10 @@ fun insertRow(username: String, password: String, did: String, issuerID: Int) {
     var connection: Connection? = null
     try {
         // below two lines are used for connectivity.
+        println(connectionURL)
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "INSERT INTO wallet.users VALUES (\"$username\", \"$password\", \"$did\", \"$issuerID\" )"
         println(sql)
@@ -42,8 +45,7 @@ fun queryUsers() {
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "SELECT * FROM wallet.users"
         val rs = connection.createStatement().executeQuery(sql)
@@ -65,8 +67,7 @@ fun updateDid(username: String, did:String){
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "UPDATE wallet.users" +
                 " SET did = \"$did\"" +
@@ -87,8 +88,7 @@ fun queryUser(username: String): UserInfo {
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "SELECT * FROM wallet.users WHERE username=\"$username\""
         val rs = connection.createStatement().executeQuery(sql)
@@ -115,8 +115,7 @@ fun insertSession(sessionID: String, issuerID: String, did: String, issuanceID: 
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+           connectionURL, user, pass
         )
         val sql = "INSERT INTO wallet.sessions VALUES (\"$sessionID\", \"$did\", \"$issuerID\", \"$issuanceID\", \"$schemaIDs\", \"$walletRedirectUri\")"
         println(sql)
@@ -134,8 +133,7 @@ fun insertIssuance(issuanceID: String, id: String, sessionID: String, vc:String)
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+           connectionURL, user, pass
         )
         println("do tuk ?")
         val sql = "INSERT INTO wallet.issuances VALUES (\"$issuanceID\", \"$id\", \"$sessionID\", \"$vc\")"
@@ -154,8 +152,7 @@ fun updateIssuanceSessionIDWithSessionID(issuanceID: String, sessionID: String){
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "UPDATE wallet.issuances" +
                 " SET sessionID = \"$sessionID\"" +
@@ -176,8 +173,7 @@ fun getAllIssuancesReadyForApprovement(): List<IssuanceData>? {
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "SELECT * FROM wallet.issuances"
         val rs = connection.createStatement().executeQuery(sql)
@@ -208,8 +204,7 @@ fun deleteIssuanceRequest(issuanceID:String){
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "DELETE FROM wallet.issuances" +
                 " WHERE issuanceID = \"$issuanceID\";"
@@ -228,8 +223,7 @@ fun insertVC(sessionID: String, vc: String) {
         // below two lines are used for connectivity.
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/uoi_backend?useSSL=FALSE&serverTimezone=UTC",
-            "daka", "daka"
+            connectionURL, user, pass
         )
         val sql = "UPDATE wallet.issuances" +
                 " SET vc = \'$vc\'" +
