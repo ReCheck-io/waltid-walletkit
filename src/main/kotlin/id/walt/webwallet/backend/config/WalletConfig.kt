@@ -9,6 +9,7 @@ import java.io.File
 data class WalletConfig(
   @ExternalHostnameUrl val walletUiUrl: String = "http://localhost:3000",
   @ExternalHostnameUrl val walletApiUrl: String = "http://localhost:3000/api",
+  @ExternalHostnameUrl val bridgeApiUrl: String = "http://localhost:6500/api",
   var issuers: Map<String, OIDCProvider> = mapOf()
 ) {
   companion object {
@@ -17,6 +18,7 @@ data class WalletConfig(
     lateinit var config: WalletConfig
     init {
       val cf = File(CONFIG_FILE)
+
       if(cf.exists()) {
         config = Klaxon().fieldConverter(ExternalHostnameUrl::class, externalHostnameUrlValueConverter).parse<WalletConfig>(cf) ?: WalletConfig()
       } else {
