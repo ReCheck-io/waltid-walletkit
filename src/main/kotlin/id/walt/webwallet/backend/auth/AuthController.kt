@@ -84,14 +84,15 @@ object AuthController {
 
         if (checkPass) {
             ContextManager.runWith(WalletContextManager.getUserContext(userInfo)) {
+                println(user)
+                println(user.did)
                 // TODO: Create DID and Register it to the EBSI DID Registry
-                if (!userInfo.did.isNullOrEmpty()) {
+                if (user.did == "string") {
                     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
                     val did = DidService.create(DidMethod.ebsi, key.id)
                     println("did $did")
 
                     val privKeyStr = KeyService.getService().export(key.id, KeyFormat.JWK, KeyType.PRIVATE)
-//                    println("privKeyStr $privKeyStr")
 
                     val json = parseJsonString(privKeyStr)
                     val encodedPrivKey: String = Base64
@@ -105,10 +106,13 @@ object AuthController {
                         println("$did | $encodedPrivKey")
                         throw IllegalArgumentException("Error")
                     } else {
-                        registerDID(did, encodedPrivKey)
-
-                        // TODO: Update the DID in the database in the correct manner
-                        updateDid(user.id, did)
+                        val res = registerDID(did, encodedPrivKey)
+                        if (res == true) {
+                            // TODO: Update the DID in the database in the correct manner
+                            updateDid(user.id, did)
+                        } else {
+                            throw IllegalArgumentException("The user has not been registered")
+                        }
                     }
                 }
             }
